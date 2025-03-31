@@ -1,0 +1,102 @@
+Open VS code 
+
+students.xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<students xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="students.xsd">
+    <student>
+        <id>101</id>
+        <name>John Doe</name>
+        <age>21</age>
+    </student>
+    <student>
+        <id>102</id>
+        <name>Jane Smith</name>
+        <age>22</age>
+    </student>
+</students>
+
+---------------------------------------
+students.xsd
+
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="students">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="student" maxOccurs="unbounded">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="id" type="xs:int"/>
+                            <xs:element name="name" type="xs:string"/>
+                            <xs:element name="age" type="xs:int"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>
+-------------------------------------
+students.xsl
+
+<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="1.0" 
+    xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+
+    <xsl:template match="/">
+        <html>
+        <head>
+            <title>Student Details</title>
+            <style>
+                table { border-collapse: collapse; width: 50%; margin: 20px; }
+                th, td { border: 1px solid black; padding: 10px; text-align: left; }
+                th { background-color: #f2f2f2; }
+            </style>
+        </head>
+        <body>
+            <h2>Student List</h2>
+            <table>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Age</th>
+                </tr>
+                <xsl:for-each select="students/student">
+                    <tr>
+                        <td><xsl:value-of select="id"/></td>
+                        <td><xsl:value-of select="name"/></td>
+                        <td><xsl:value-of select="age"/></td>
+                    </tr>
+                </xsl:for-each>
+            </table>
+        </body>
+        </html>
+    </xsl:template>
+
+</xsl:stylesheet>
+-------------------------------------------------------
+transform.py
+
+from lxml import etree
+
+# Load XML and XSLT
+xml_file = "students.xml"
+xslt_file = "students.xsl"
+
+xml_tree = etree.parse(xml_file)
+xslt_tree = etree.parse(xslt_file)
+
+transform = etree.XSLT(xslt_tree)
+html_output = transform(xml_tree)
+
+# Save to an HTML file
+with open("students.html", "wb") as f:
+    f.write(etree.tostring(html_output, pretty_print=True))
+
+print("Transformation complete! Open 'students.html' in a browser.")
+-----------------------------------------------------------
+
+pip install lxml
+python transform.py
