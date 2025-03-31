@@ -1,0 +1,243 @@
+index.html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Examination System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Login Page -->
+    <div id="loginPage" class="container">
+        <div class="login-box">
+            <h1>Login</h1>
+            <form id="loginForm">
+                <div class="textbox">
+                    <input type="text" id="username" placeholder="Enter Username" required>
+                </div>
+                <div class="textbox">
+                    <input type="password" id="password" placeholder="Enter Password" required>
+                </div>
+                <button type="submit">Login</button>
+            </form>
+            <p id="loginError" class="error-message">Invalid username or password.</p>
+        </div>
+    </div>
+
+    <!-- Exam Page -->
+    <div id="examPage" class="container" style="display: none;">
+        <div class="exam-box">
+            <h1>Online Exam</h1>
+            <form id="examForm">
+                <div class="question">
+                    <p>1. What is 2 + 2?</p>
+                    <label><input type="radio" name="q1" value="4"> 4</label><br>
+                    <label><input type="radio" name="q1" value="5"> 5</label><br>
+                </div>
+
+                <div class="question">
+                    <p>2. What is the capital of France?</p>
+                    <label><input type="radio" name="q2" value="Paris"> Paris</label><br>
+                    <label><input type="radio" name="q2" value="London"> London</label><br>
+                </div>
+
+                <button type="submit">Submit Exam</button>
+            </form>
+            <p id="examResult" class="result-message"></p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
+
+--------------------------------------------
+style.css
+
+/* Global Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f7f7f7;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    color: #333;
+}
+
+/* Container for both Login and Exam pages */
+.container {
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+}
+
+/* Login Box */
+.login-box {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+h1 {
+    color: #4CAF50;
+    margin-bottom: 20px;
+}
+
+.textbox {
+    margin-bottom: 15px;
+}
+
+.textbox input {
+    width: 100%;
+    padding: 12px;
+    margin-top: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+/* Error Message */
+.error-message {
+    color: red;
+    font-size: 14px;
+    display: none;
+    margin-top: 10px;
+}
+
+/* Exam Box */
+.exam-box {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.question {
+    margin-bottom: 20px;
+}
+
+.question p {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.question label {
+    font-size: 16px;
+    display: block;
+    margin-bottom: 8px;
+}
+
+/* Result Message */
+.result-message {
+    font-size: 18px;
+    color: #4CAF50;
+    text-align: center;
+    display: none;
+}
+
+
+----------------------------------
+script.js
+
+// Handle login
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    // Simulate login validation (no backend)
+    if (username === 'student' && password === 'password123') {
+        document.getElementById('loginPage').style.display = 'none'; // Hide login page
+        document.getElementById('examPage').style.display = 'block'; // Show exam page
+    } else {
+        document.getElementById('loginError').style.display = 'block'; // Show error message
+    }
+});
+
+// Handle exam submission
+document.getElementById('examForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    let score = 0;
+    
+    // Check the answers for the exam (hardcoded questions)
+    const q1 = document.querySelector('input[name="q1"]:checked');
+    const q2 = document.querySelector('input[name="q2"]:checked');
+    
+    if (q1 && q1.value === '4') {
+        score++;
+    }
+    if (q2 && q2.value === 'Paris') {
+        score++;
+    }
+    
+    // Show the result
+    const result = `You scored ${score} out of 2.`;
+    document.getElementById('examResult').textContent = result;
+    document.getElementById('examResult').style.display = 'block';
+});
+
+----------------------------------------------------------
+to write in paper alone - Examservlet.java
+
+import javax.servlet.*;
+import javax.servlet.http.*;
+import java.io.*;
+
+public class ExamServlet extends HttpServlet {
+    
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // For GET requests, forward to exam page (index.jsp)
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/exam.jsp");
+        dispatcher.forward(request, response);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // Handle form submission and calculate score
+        String answer1 = request.getParameter("answer1");
+        String answer2 = request.getParameter("answer2");
+
+        int score = 0;
+        
+        // Check answers
+        if ("4".equals(answer1)) {
+            score++;
+        }
+        if ("Paris".equals(answer2)) {
+            score++;
+        }
+
+        // Send result back to user
+        request.setAttribute("score", score);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/result.jsp");
+        dispatcher.forward(request, response);
+    }
+}
+--------------------------------------------------------------------------------
