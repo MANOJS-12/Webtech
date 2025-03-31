@@ -1,0 +1,236 @@
+📁 MyWebApp/
+│── 📁 web/             
+│   ├── 📄 index.html          (Login Page)
+│   ├── 📄 dashboard.html      (Dashboard Page)
+│   ├── 📄 logout.html         (Logout Page)
+│   ├── 📁 WEB-INF/
+│   │   ├── 📄 web.xml         (Optional: Deployment Descriptor)
+│
+│── 📁 src/             
+│   ├── 📁 servlets/
+│   │   ├── 📄 LoginServlet.java    (Handles login)
+│   │   ├── 📄 DashboardServlet.java (Handles session tracking)
+│   │   ├── 📄 LogoutServlet.java    (Handles logout)
+│
+│── 📁 lib/             (For external JAR files if needed)
+│── 📁 build/           (For compiled files)
+│── 📄 pom.xml (For Maven) OR build.gradle (For Gradle)
+--------------------------------------------------------------------------------------
+index.html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<body>
+    <h2>Login Page</h2>
+    <form action="login" method="post">
+        <label>Username:</label>
+        <input type="text" name="username" required><br>
+        <label>Password:</label>
+        <input type="password" name="password" required><br>
+        <button type="submit">Login</button>
+    </form>
+</body>
+</html>
+------------------------------------------
+dashboard.html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+</head>
+<body>
+    <h2>Welcome to the Dashboard</h2>
+    <p>You are successfully logged in.</p>
+    <a href="logout">Logout</a>
+</body>
+</html>
+
+-------------------------------------------------
+logout.html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logout</title>
+</head>
+<body>
+    <h2>You have been logged out.</h2>
+    <p><a href="index.html">Go back to Login</a></p>
+</body>
+</html>
+
+---------------------------------------------------------
+LoginSerlet.java
+
+package servlets;
+
+import java.io.IOException;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+@WebServlet("/login")
+public class LoginServlet extends HttpServlet {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+
+        // Simple validation (Replace with database check)
+        if ("admin".equals(username) && "1234".equals(password)) {
+            HttpSession session = request.getSession();
+            session.setAttribute("user", username);
+            response.sendRedirect("dashboard");
+        } else {
+            response.getWriter().println("Invalid login! Try again.");
+        }
+    }
+}
+-------------------------------------
+DashboardServlet.java
+
+package servlets;
+
+import java.io.IOException;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+@WebServlet("/dashboard")
+public class DashboardServlet extends HttpServlet {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        HttpSession session = request.getSession(false);
+
+        if (session != null && session.getAttribute("user") != null) {
+            response.getWriter().println("<h1>Welcome, " + session.getAttribute("user") + "!</h1>");
+            response.getWriter().println("<a href='logout'>Logout</a>");
+        } else {
+            response.sendRedirect("index.html");
+        }
+    }
+}
+-----------------------------------------------
+LogoutServlet.java
+
+package servlets;
+
+import java.io.IOException;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+@WebServlet("/logout")
+public class LogoutServlet extends HttpServlet {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+        response.sendRedirect("index.html");
+    }
+}
+----------------------------------------------
+web.xml
+
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" version="3.0">
+    <servlet>
+        <servlet-name>LoginServlet</servlet-name>
+        <servlet-class>servlets.LoginServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>LoginServlet</servlet-name>
+        <url-pattern>/login</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>DashboardServlet</servlet-name>
+        <servlet-class>servlets.DashboardServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>DashboardServlet</servlet-name>
+        <url-pattern>/dashboard</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>LogoutServlet</servlet-name>
+        <servlet-class>servlets.LogoutServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>LogoutServlet</servlet-name>
+        <url-pattern>/logout</url-pattern>
+    </servlet-mapping>
+</web-app>
+-----------------------------------
+pom.xml
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.mywebapp</groupId>
+    <artifactId>MyWebApp</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <dependencies>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>4.0.1</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+</project>
+
+-------------------------------------------------
+Run the Project Using Apache Tomcat in VS Code:
+
+Step 1: Install Tomcat for VS Code
+Install the "Tomcat for Java" extension from the VS Code Extensions Marketplace.
+
+Open the Extensions view (Ctrl+Shift+X), search for Tomcat for Java, and install it.
+
+Step 2: Configure Apache Tomcat in VS Code
+After installing, open the Command Palette (Ctrl+Shift+P) and search for Tomcat: Download Tomcat.
+
+Download and install Tomcat from the extension (you can choose version 9.x).
+
+Once installed, open the Command Palette again, search for Tomcat: Add Tomcat Server, and point it to the Tomcat folder you just downloaded.
+
+Step 3: Deploy Your Project on Tomcat
+Right-click on your project folder in VS Code and select Add to Tomcat Server.
+
+The project will be added to the Tomcat server, and you will see it under the Tomcat Servers section in VS Code.
+
+Step 4: Run the Project
+In the Tomcat Servers section, click Start to start the Tomcat server.
+
+Once the server is running, you can access your project in the browser via:
+
+http://localhost:8080/MyWebApp/index.html
+
+Step 5: Debugging and Logs
+Use the Debug view in VS Code to set breakpoints and inspect Java code execution.
+
+View the Output panel to check Tomcat logs.
